@@ -138,20 +138,23 @@
           </div>
         </div>
         <div class="chat-content">
-          <button
-            class="btn btn-primary py-2"
-            data-bs-toggle="modal"
-            data-bs-target="#messageStudents"
-          >
-            Message Students
-          </button>
-          <button
-            class="btn btn-primary py-2"
-            data-bs-toggle="modal"
-            data-bs-target="#messageStudents"
-          >
-            Message Teachers
-          </button>
+          <div class="d-flex justify-content-end mb-2">
+            <button
+              class="btn btn-primary py-1"
+              data-bs-toggle="modal"
+              data-bs-target="#sendStudentsMessage"
+            >
+              Message Students
+            </button>
+            <button
+              class="btn btn-primary py-1 ms-1"
+              data-bs-toggle="modal"
+              data-bs-target="#sendTeacherMessage"
+            >
+              Message Teachers
+            </button>
+          </div>
+
           <div class="card mb-0">
             <div class="card-header p-3">
               <div class="d-flex align-items-center">
@@ -359,7 +362,95 @@
         </div>
       </div>
     </div>
-    <!-- [ sample-page ] end -->
+
+    <div
+      id="sendTeacherMessage"
+      class="modal fade"
+      tabindex="-1"
+      aria-labelledby="sendTeacherMessageLabel"
+      aria-modal="true"
+      role="dialog"
+    >
+      <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="sendTeacherMessageLabel">
+              Message Teachers
+            </h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <form>
+              <div class="form-group">
+                <label for="sname">Message</label>
+
+                <textarea
+                  class="form-control"
+                  cols="30"
+                  rows="5"
+                  v-model="tmessage"
+                ></textarea>
+              </div>
+              <button
+                class="btn btn-primary"
+                @click.prevent="sendTeachersMessage()"
+              >
+                Send Message
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div
+      id="sendStudentsMessage"
+      class="modal fade"
+      tabindex="-1"
+      aria-labelledby="sendStudentsMessageLabel"
+      aria-modal="true"
+      role="dialog"
+    >
+      <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="sendStudentsMessageLabel">
+              Message Student
+            </h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <form>
+              <div class="form-group">
+                <label for="sname">Message</label>
+
+                <textarea
+                  class="form-control"
+                  rows="5"
+                  v-model="smessage"
+                ></textarea>
+              </div>
+              <button
+                class="btn btn-primary"
+                @click.prevent="sendStudentsMessage()"
+              >
+                Send Message
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 <script lang="ts" setup>
@@ -373,6 +464,8 @@
   const user: any = ref({});
   const message = ref("");
   const loaded = ref(true);
+  const tmessage: any = ref("");
+  const smessage: any = ref("");
 
   const getChats = async () => {
     store.commit("setLoader", true);
@@ -380,13 +473,60 @@
       store.commit("setLoader", false);
       users.value = resp.data.data;
       user.value = users.value[0];
-      console.log(resp);
+
       loaded.value = true;
     });
   };
 
   const setUser = (data: any) => {
     user.value = data;
+  };
+  const sendTeachersMessage = async () => {
+    if (tmessage.value.length < 1) {
+      useToast().error("Message is required");
+      return;
+    }
+    store.commit("setLoader", true);
+    console.log(user.value);
+    await store
+      .dispatch("post", {
+        endpoint: "message-teachers",
+        details: { message: tmessage.value },
+      })
+      .then(() => {
+        store.commit("setLoader", false);
+
+        setTimeout(function () {
+          window.location.reload();
+        }, 1000);
+      })
+      .catch(() => {
+        store.commit("setLoader", false);
+      });
+  };
+  const sendStudentsMessage = async () => {
+    if (smessage.value.length < 1) {
+      useToast().error("Message is required");
+      return;
+    }
+    store.commit("setLoader", true);
+    console.log(user.value);
+    await store
+      .dispatch("post", {
+        endpoint: "message-students",
+        details: { message: smessage.value },
+      })
+      .then(() => {
+        store.commit("setLoader", false);
+
+        useToast().success("Message sent");
+        setTimeout(function () {
+          window.location.reload();
+        }, 1000);
+      })
+      .catch(() => {
+        store.commit("setLoader", false);
+      });
   };
   const sendMessage = async () => {
     if (message.value.length < 1) {
