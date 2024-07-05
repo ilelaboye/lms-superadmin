@@ -141,9 +141,16 @@
           <button
             class="btn btn-primary py-2"
             data-bs-toggle="modal"
-            data-bs-target="#addManager"
+            data-bs-target="#messageStudents"
           >
-            Add Manager
+            Message Students
+          </button>
+          <button
+            class="btn btn-primary py-2"
+            data-bs-toggle="modal"
+            data-bs-target="#messageStudents"
+          >
+            Message Teachers
           </button>
           <div class="card mb-0">
             <div class="card-header p-3">
